@@ -1,25 +1,16 @@
 --- a/fs/susfs.c
 +++ b/fs/susfs.c
-@@ -1159,14 +1159,14 @@
- 		return -EINVAL;
+@@ -1161,10 +1161,10 @@
+ 	/* get susfs enabled features */
+-	static int copy_config_to_buf(const char *config_string, char *buf_ptr, size_t *copied_size, size_t bufsize) {
++	static int __maybe_unused copy_config_to_buf(const char *config_string, char *buf_ptr, size_t *copied_size, size_t bufsize) {
+ 		size_t tmp_size = strlen(config_string);
+ 
+@@ -1176,7 +1176,7 @@
+ 	if (!info) {
+ 		info->err = -ENOMEM;
+ 		goto out_copy_to_user;
  	}
- 
--static int copy_config_to_buf(const char *config_string, char *buf_ptr, size_t *copied_size, size_t bufsize) {
-+static int __maybe_unused copy_config_to_buf(const char *config_string, char *buf_ptr, size_t *copied_size, size_t bufsize) {
- 	int len = 0;
- 
- 	while (len < bufsize) {
- 		if (config_string[len] == '\0')
- 			break;
- 		buf_ptr[len] = config_string[len];
- 		len++;
- 	}
- 	buf_ptr[len] = '\0';
- 	*copied_size = len;
-@@ -1177,7 +1177,7 @@
- 	if (!susfs_ino_allow_list)
- 		return 0;
- 
 -	size_t copied_size = 0;
 +	size_t __maybe_unused copied_size = 0;
  	char *buf_ptr = NULL;
