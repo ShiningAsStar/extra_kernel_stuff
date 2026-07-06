@@ -1,0 +1,9 @@
+--- a/fs/susfs.c
++++ b/fs/susfs.c
+@@ -1164,7 +1164,7 @@
+-static int copy_config_to_buf(const char *config_string, char *buf_ptr, size_t *copied_size, size_t bufsize) {
++static int __maybe_unused copy_config_to_buf(const char *config_string, char *buf_ptr, size_t *copied_size, size_t bufsize) {
+...
+@@ -1179,7 +1179,7 @@
+-        size_t copied_size = 0;
++        size_t __maybe_unused copied_size = 0;
