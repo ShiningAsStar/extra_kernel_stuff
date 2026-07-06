@@ -1,16 +1,25 @@
 --- a/fs/susfs.c
 +++ b/fs/susfs.c
-@@ -1163,8 +1163,8 @@
+@@ -1159,14 +1159,14 @@
+ 		return -EINVAL;
  	}
- 	*buf_ptr = '\0';
+ 
 -static int copy_config_to_buf(const char *config_string, char *buf_ptr, size_t *copied_size, size_t bufsize) {
 +static int __maybe_unused copy_config_to_buf(const char *config_string, char *buf_ptr, size_t *copied_size, size_t bufsize) {
  	int len = 0;
+ 
  	while (len < bufsize) {
- 		if (config_string[len] == '\0') break;
-@@ -1177,7 +1177,7 @@
+ 		if (config_string[len] == '\0')
+ 			break;
+ 		buf_ptr[len] = config_string[len];
+ 		len++;
  	}
- 	if (!susfs_ino_allow_list) return 0;
+ 	buf_ptr[len] = '\0';
+ 	*copied_size = len;
+@@ -1177,7 +1177,7 @@
+ 	if (!susfs_ino_allow_list)
+ 		return 0;
+ 
 -	size_t copied_size = 0;
 +	size_t __maybe_unused copied_size = 0;
  	char *buf_ptr = NULL;
