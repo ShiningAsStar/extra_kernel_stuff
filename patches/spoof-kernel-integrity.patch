@@ -1,11 +1,10 @@
 --- a/init/main.c
 +++ b/init/main.c
-@@ -634,9 +634,29 @@ static void __init setup_command_line(char *command_line)
+@@ -634,3 +634,16 @@ static void __init setup_command_line(char *command_line)
  {
  	size_t len, xlen = 0, ilen = 0;
 +	char *ks;
 +
-+	/* Layer 1: Spoof verified boot state and flash lock status */
 +	while((ks=strstr(command_line,"verifiedbootstate=orange")))
 +		memcpy(ks,"verifiedbootstate=green ",24);
 +	while((ks=strstr(command_line,"verifiedbootstate=red")))
@@ -16,19 +15,9 @@
 +		memcpy(ks,"veritymode=enforcing",20);
  
  	if (extra_command_line)
- 		xlen = strlen(extra_command_line);
- 	if (extra_init_args)
- 		ilen = strlen(extra_init_args) + 4; /* for " -- " */
- 
- 	len = xlen + strlen(boot_command_line) + 1;
- 
- 	saved_command_line = memblock_alloc(len + ilen, SMP_CACHE_BYTES);
- 	if (!saved_command_line)
- 		panic("%s: Failed to allocate %zu bytes\n", __func__, len + ilen);
- 
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -1,12 +1,31 @@
+@@ -1,9 +1,28 @@
  // SPDX-License-Identifier: GPL-2.0
  #include <linux/fs.h>
  #include <linux/init.h>
@@ -42,7 +31,6 @@
 +	char *c = kstrdup(saved_command_line, GFP_KERNEL);
 +	if(c){
 +		char *s;
-+		/* Layer 2: Spoof command line in /proc/cmdline */
 +		while((s=strstr(c,"verifiedbootstate=orange")))
 +			memcpy(s,"verifiedbootstate=green ",24);
 +		while((s=strstr(c,"verifiedbootstate=red")))
@@ -61,17 +49,14 @@
  }
 --- a/fs/proc/bootconfig.c
 +++ b/fs/proc/bootconfig.c
-@@ -14,11 +14,30 @@ static char *saved_boot_config;
- 
- static int boot_config_proc_show(struct seq_file *m, void *v)
+@@ -15,10 +15,29 @@ static int boot_config_proc_show(struct seq_file *m, void *v)
  {
-+	char *b = kmalloc(BOOTCONFIG_SIZE_MAX, GFP_KERNEL);
  	if (saved_boot_config)
 -		seq_puts(m, saved_boot_config);
 -	return 0;
 +	{
++		char *b = kmalloc(BOOTCONFIG_SIZE_MAX, GFP_KERNEL);
 +		char *s;
-+		/* Layer 3: Spoof boot configuration */
 +		if(b){
 +			strcpy(b, saved_boot_config);
 +			while((s=strstr(b,"verifiedbootstate = \"orange\"")))
@@ -90,3 +75,5 @@
 +	}
 +	return 0;
  }
+ 
+ /* Rest size of buffer */
