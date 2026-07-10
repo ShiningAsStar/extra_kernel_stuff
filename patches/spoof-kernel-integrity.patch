@@ -1,6 +1,6 @@
 --- a/init/main.c
 +++ b/init/main.c
-@@ -632,12 +632,29 @@ __setup("rdinit=", rdinit_setup);
+@@ -632,6 +632,23 @@ __setup("rdinit=", rdinit_setup);
   * We need to store the touched command line since the parameter
   * parsing is performed in place, and we should allow a component to
   * store reference of name/value for future reference.
@@ -11,13 +11,13 @@
 +	char *ks;
 +
 +	/* Layer 1: Spoof verified boot state and flash lock status */
-+	while((ks=strstr(command_line,"verifiedbootstate=orange"))) 
++	while((ks=strstr(command_line,"verifiedbootstate=orange")))
 +		memcpy(ks,"verifiedbootstate=green ",24);
-+	while((ks=strstr(command_line,"verifiedbootstate=red"))) 
++	while((ks=strstr(command_line,"verifiedbootstate=red")))
 +		memcpy(ks,"verifiedbootstate=green",23);
-+	while((ks=strstr(command_line,"flash.locked=0"))) 
++	while((ks=strstr(command_line,"flash.locked=0")))
 +		memcpy(ks,"flash.locked=1",14);
-+	while((ks=strstr(command_line,"veritymode=logging"))) 
++	while((ks=strstr(command_line,"veritymode=logging")))
 +		memcpy(ks,"veritymode=enforcing",20);
  
  	if (extra_command_line)
@@ -25,8 +25,7 @@
  	if (extra_init_args)
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -1,11 +1,30 @@
- // SPDX-License-Identifier: GPL-2.0
+@@ -2,9 +2,28 @@
  #include <linux/fs.h>
  #include <linux/init.h>
  #include <linux/proc_fs.h>
@@ -40,13 +39,13 @@
 +	if(c){
 +		char *s;
 +		/* Layer 2: Spoof command line in /proc/cmdline */
-+		while((s=strstr(c,"verifiedbootstate=orange"))) 
++		while((s=strstr(c,"verifiedbootstate=orange")))
 +			memcpy(s,"verifiedbootstate=green ",24);
-+		while((s=strstr(c,"verifiedbootstate=red"))) 
++		while((s=strstr(c,"verifiedbootstate=red")))
 +			memcpy(s,"verifiedbootstate=green",23);
-+		while((s=strstr(c,"flash.locked=0"))) 
++		while((s=strstr(c,"flash.locked=0")))
 +			memcpy(s,"flash.locked=1",14);
-+		while((s=strstr(c,"veritymode=logging"))) 
++		while((s=strstr(c,"veritymode=logging")))
 +			memcpy(s,"veritymode=enforcing",20);
 +		seq_puts(m, c);
 +		kfree(c);
