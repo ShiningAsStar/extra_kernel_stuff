@@ -1,11 +1,6 @@
 --- a/init/main.c
 +++ b/init/main.c
-@@ -632,6 +632,23 @@ __setup("rdinit=", rdinit_setup);
-  * We need to store the touched command line since the parameter
-  * parsing is performed in place, and we should allow a component to
-  * store reference of name/value for future reference.
-  */
- static void __init setup_command_line(char *command_line)
+@@ -634,6 +634,23 @@ static void __init setup_command_line(char *command_line)
  {
  	size_t len, xlen = 0, ilen = 0;
 +	char *ks;
@@ -22,10 +17,10 @@
  
  	if (extra_command_line)
  		xlen = strlen(extra_command_line);
- 	if (extra_init_args)
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -2,9 +2,28 @@
+@@ -1,12 +1,31 @@
+ // SPDX-License-Identifier: GPL-2.0
  #include <linux/fs.h>
  #include <linux/init.h>
  #include <linux/proc_fs.h>
@@ -57,7 +52,7 @@
  }
 --- a/fs/proc/bootconfig.c
 +++ b/fs/proc/bootconfig.c
-@@ -13,10 +13,29 @@ static char *saved_boot_config;
+@@ -14,11 +14,30 @@ static char *saved_boot_config;
  
  static int boot_config_proc_show(struct seq_file *m, void *v)
  {
@@ -70,13 +65,13 @@
 +		/* Layer 3: Spoof boot configuration */
 +		if(b){
 +			strcpy(b, saved_boot_config);
-+			while((s=strstr(b,"verifiedbootstate = \"orange\""))) 
++			while((s=strstr(b,"verifiedbootstate = \"orange\"")))
 +				memcpy(s, "verifiedbootstate  = \"green\"", 27);
-+			while((s=strstr(b,"device_state = \"unlocked\""))) 
++			while((s=strstr(b,"device_state = \"unlocked\"")))
 +				memcpy(s, "device_state   = \"locked\"", 25);
-+			while((s=strstr(b,"flash.locked = \"0\""))) 
++			while((s=strstr(b,"flash.locked = \"0\"")))
 +				memcpy(s, "flash.locked = \"1\"", 18);
-+			while((s=strstr(b,"veritymode = \"logging\""))) 
++			while((s=strstr(b,"veritymode = \"logging\"")))
 +				memcpy(s, "veritymode = \"enforcing\"", 24);
 +			seq_puts(m, b);
 +			kfree(b);
@@ -86,5 +81,3 @@
 +	}
 +	return 0;
  }
- 
- /* Rest size of buffer */
