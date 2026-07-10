@@ -1,6 +1,6 @@
 --- a/init/main.c
 +++ b/init/main.c
-@@ -634,6 +634,23 @@ static void __init setup_command_line(char *command_line)
+@@ -634,9 +634,26 @@ static void __init setup_command_line(char *command_line)
  {
  	size_t len, xlen = 0, ilen = 0;
 +	char *ks;
@@ -17,6 +17,12 @@
  
  	if (extra_command_line)
  		xlen = strlen(extra_command_line);
+ 	if (extra_init_args)
+ 		ilen = strlen(extra_init_args) + 4; /* for " -- " */
+ 
+ 	len = xlen + strlen(boot_command_line) + 1;
+ 
+ 	saved_command_line = memblock_alloc(len + ilen, SMP_CACHE_BYTES);
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
 @@ -1,12 +1,31 @@
