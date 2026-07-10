@@ -1,25 +1,28 @@
 --- a/init/main.c
 +++ b/init/main.c
-@@ -634,3 +634,16 @@ static void __init setup_command_line(char *command_line)
+@@ -634,6 +634,19 @@ static void __init setup_command_line(char *command_line)
  {
  	size_t len, xlen = 0, ilen = 0;
-+	char *ks;
-+
-+	while((ks=strstr(command_line,"verifiedbootstate=orange")))
-+		memcpy(ks,"verifiedbootstate=green ",24);
-+	while((ks=strstr(command_line,"verifiedbootstate=red")))
-+		memcpy(ks,"verifiedbootstate=green",23);
-+	while((ks=strstr(command_line,"flash.locked=0")))
-+		memcpy(ks,"flash.locked=1",14);
-+	while((ks=strstr(command_line,"veritymode=logging")))
-+		memcpy(ks,"veritymode=enforcing",20);
  
++	{
++		char *ks;
++		while ((ks = strstr(command_line, "verifiedbootstate=orange")))
++			memcpy(ks, "verifiedbootstate=green ", 24);
++		while ((ks = strstr(command_line, "verifiedbootstate=red")))
++			memcpy(ks, "verifiedbootstate=green", 23);
++		while ((ks = strstr(command_line, "flash.locked=0")))
++			memcpy(ks, "flash.locked=1", 14);
++		while ((ks = strstr(command_line, "veritymode=logging")))
++			memcpy(ks, "veritymode=enforcing", 20);
++	}
++
++
  	if (extra_command_line)
+ 		xlen = strlen(extra_command_line);
+ 	if (extra_init_args)
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -1,9 +1,28 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <linux/fs.h>
+@@ -3,11 +3,30 @@
  #include <linux/init.h>
  #include <linux/proc_fs.h>
  #include <linux/seq_file.h>
@@ -28,44 +31,47 @@
  static int cmdline_proc_show(struct seq_file *m, void *v)
  {
 -	seq_puts(m, saved_command_line);
+-	seq_putc(m, '\n');
 +	char *c = kstrdup(saved_command_line, GFP_KERNEL);
-+	if(c){
++	if (c) {
 +		char *s;
-+		while((s=strstr(c,"verifiedbootstate=orange")))
-+			memcpy(s,"verifiedbootstate=green ",24);
-+		while((s=strstr(c,"verifiedbootstate=red")))
-+			memcpy(s,"verifiedbootstate=green",23);
-+		while((s=strstr(c,"flash.locked=0")))
-+			memcpy(s,"flash.locked=1",14);
-+		while((s=strstr(c,"veritymode=logging")))
-+			memcpy(s,"veritymode=enforcing",20);
-+		seq_puts(m, c);
++		while ((s = strstr(c, "verifiedbootstate=orange")))
++			memcpy(s, "verifiedbootstate=green ", 24);
++		while ((s = strstr(c, "verifiedbootstate=red")))
++			memcpy(s, "verifiedbootstate=green", 23);
++		while ((s = strstr(c, "flash.locked=0")))
++			memcpy(s, "flash.locked=1", 14);
++		while ((s = strstr(c, "veritymode=logging")))
++			memcpy(s, "veritymode=enforcing", 20);
++		seq_printf(m, "%s\n", c);
 +		kfree(c);
 +	} else {
 +		seq_puts(m, saved_command_line);
++		seq_putc(m, '\n');
 +	}
- 	seq_putc(m, '\n');
  	return 0;
  }
+ 
 --- a/fs/proc/bootconfig.c
 +++ b/fs/proc/bootconfig.c
-@@ -15,10 +15,29 @@ static int boot_config_proc_show(struct seq_file *m, void *v)
+@@ -14,7 +14,27 @@ static char *saved_boot_config;
+ 
+ static int boot_config_proc_show(struct seq_file *m, void *v)
  {
- 	if (saved_boot_config)
+-	if (saved_boot_config)
 -		seq_puts(m, saved_boot_config);
--	return 0;
-+	{
-+		char *b = kmalloc(BOOTCONFIG_SIZE_MAX, GFP_KERNEL);
-+		char *s;
-+		if(b){
++	if (saved_boot_config) {
++		char *b = kmalloc(strlen(saved_boot_config) + 1, GFP_KERNEL);
++		if (b) {
++			char *s;
 +			strcpy(b, saved_boot_config);
-+			while((s=strstr(b,"verifiedbootstate = \"orange\"")))
++			while ((s = strstr(b, "verifiedbootstate = \"orange\"")))
 +				memcpy(s, "verifiedbootstate  = \"green\"", 27);
-+			while((s=strstr(b,"device_state = \"unlocked\"")))
++			while ((s = strstr(b, "device_state = \"unlocked\"")))
 +				memcpy(s, "device_state   = \"locked\"", 25);
-+			while((s=strstr(b,"flash.locked = \"0\"")))
++			while ((s = strstr(b, "flash.locked = \"0\"")))
 +				memcpy(s, "flash.locked = \"1\"", 18);
-+			while((s=strstr(b,"veritymode = \"logging\"")))
++			while ((s = strstr(b, "veritymode = \"logging\"")))
 +				memcpy(s, "veritymode = \"enforcing\"", 24);
 +			seq_puts(m, b);
 +			kfree(b);
@@ -73,7 +79,5 @@
 +			seq_puts(m, saved_boot_config);
 +		}
 +	}
-+	return 0;
+ 	return 0;
  }
- 
- /* Rest size of buffer */
