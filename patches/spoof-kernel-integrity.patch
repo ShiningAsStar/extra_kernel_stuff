@@ -21,8 +21,6 @@
  		ilen = strlen(extra_init_args) + 4; /* for " -- " */
  
  	len = xlen + strlen(boot_command_line) + 1;
- 
- 	saved_command_line = memblock_alloc(len + ilen, SMP_CACHE_BYTES);
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
 @@ -1,12 +1,31 @@
