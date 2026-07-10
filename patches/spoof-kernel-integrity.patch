@@ -2,7 +2,7 @@ diff --git a/init/main.c b/init/main.c
 index 1234567..abcdefg 100644
 --- a/init/main.c
 +++ b/init/main.c
-@@ -683,6 +683,14 @@ static void __init setup_command_line(char *command_line)
+@@ -636,6 +636,14 @@ static void __init setup_command_line(char *command_line)
  {
  	size_t len, xlen = 0, ilen = 0;
  
@@ -21,7 +21,7 @@ diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
 index 1234567..abcdefg 100644
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -1,13 +1,26 @@
+@@ -1,14 +1,27 @@
  // SPDX-License-Identifier: GPL-2.0
  #include <linux/fs.h>
  #include <linux/init.h>
@@ -50,24 +50,12 @@ index 1234567..abcdefg 100644
 +	}
  	return 0;
  }
+ 
 diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
 index 1234567..abcdefg 100644
 --- a/fs/proc/bootconfig.c
 +++ b/fs/proc/bootconfig.c
-@@ -1,14 +1,32 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-  * /proc/bootconfig - Extra boot configuration
-  */
- #include <linux/fs.h>
- #include <linux/init.h>
- #include <linux/printk.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
- #include <linux/bootconfig.h>
- #include <linux/slab.h>
- 
- static char *saved_boot_config;
+@@ -15,8 +15,21 @@ static char *saved_boot_config;
  
  static int boot_config_proc_show(struct seq_file *m, void *v)
  {
