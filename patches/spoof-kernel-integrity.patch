@@ -1,0 +1,87 @@
+diff --git a/init/main.c b/init/main.c
+index 1234567..abcdefg 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -680,6 +680,14 @@ static void __init setup_command_line(char *command_line)
+ {
+ 	size_t len, xlen = 0, ilen = 0;
+ 
++	{
++		char *ks;
++		while ((ks = strstr(command_line, "verifiedbootstate=orange"))) memcpy(ks, "verifiedbootstate=green ", 24);
++		while ((ks = strstr(command_line, "verifiedbootstate=red"))) memcpy(ks, "verifiedbootstate=green", 23);
++		while ((ks = strstr(command_line, "flash.locked=0"))) memcpy(ks, "flash.locked=1", 14);
++		while ((ks = strstr(command_line, "veritymode=logging"))) memcpy(ks, "veritymode=enforcing", 20);
++	}
++
+ 	/* Save the original command line early, before any modifications */
+ 	len = strlen(boot_command_line);
+ 	if (len > COMMAND_LINE_SIZE)
+diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
+index 1234567..abcdefg 100644
+--- a/fs/proc/cmdline.c
++++ b/fs/proc/cmdline.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/fs.h>
+ #include <linux/init.h>
++#include <linux/slab.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+ 
+@@ -8,6 +9,20 @@ static int cmdline_proc_show(struct seq_file *m, void *v)
+ {
+ 	seq_printf(m, "%s\n", saved_command_line);
+ 	return 0;
++
++	char *c = kstrdup(saved_command_line, GFP_KERNEL);
++	if (c) {
++		char *s;
++		while ((s = strstr(c, "verifiedbootstate=orange"))) memcpy(s, "verifiedbootstate=green ", 24);
++		while ((s = strstr(c, "verifiedbootstate=red"))) memcpy(s, "verifiedbootstate=green", 23);
++		while ((s = strstr(c, "flash.locked=0"))) memcpy(s, "flash.locked=1", 14);
++		while ((s = strstr(c, "veritymode=logging"))) memcpy(s, "veritymode=enforcing", 20);
++		seq_printf(m, "%s\n", c);
++		kfree(c);
++		return 0;
++	}
++	seq_printf(m, "%s\n", saved_command_line);
++	return 0;
+ }
+ 
+ static int __init proc_cmdline_init(void)
+diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
+index 1234567..abcdefg 100644
+--- a/fs/proc/bootconfig.c
++++ b/fs/proc/bootconfig.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/fs.h>
+ #include <linux/init.h>
++#include <linux/slab.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+ #include <linux/bootconfig.h>
+@@ -9,6 +10,22 @@ static int bootconfig_proc_show(struct seq_file *m, void *v)
+ {
+ 	seq_write(m, bootconfig_data, bootconfig_data_size);
+ 	return 0;
++
++	char *b = kmalloc(bootconfig_data_size + 1, GFP_KERNEL);
++	if (b) {
++		char *s;
++		memcpy(b, bootconfig_data, bootconfig_data_size);
++		b[bootconfig_data_size] = 0;
++		while ((s = strstr(b, "verifiedbootstate = \"orange\""))) memcpy(s, "verifiedbootstate  = \"green\"", 27);
++		while ((s = strstr(b, "device_state = \"unlocked\""))) memcpy(s, "device_state   = \"locked\"", 25);
++		while ((s = strstr(b, "flash.locked = \"0\""))) memcpy(s, "flash.locked = \"1\"", 18);
++		while ((s = strstr(b, "veritymode = \"logging\""))) memcpy(s, "veritymode = \"enforcing\"", 24);
++		seq_write(m, b, bootconfig_data_size);
++		kfree(b);
++		return 0;
++	}
++	seq_write(m, bootconfig_data, bootconfig_data_size);
++	return 0;
+ }
+ 
+ static int __init proc_bootconfig_init(void)
