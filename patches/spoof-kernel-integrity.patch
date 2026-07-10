@@ -2,7 +2,7 @@ diff --git a/init/main.c b/init/main.c
 index 1234567..abcdefg 100644
 --- a/init/main.c
 +++ b/init/main.c
-@@ -634,6 +634,14 @@ static void __init setup_command_line(char *command_line)
+@@ -634,7 +634,15 @@ static void __init setup_command_line(char *command_line)
  {
  	size_t len, xlen = 0, ilen = 0;
  
