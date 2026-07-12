@@ -1,6 +1,8 @@
---- a/init/main.c
-+++ b/init/main.c
-@@ -634,6 +634,19 @@ static void __init setup_command_line(char *command_line)
+﻿diff --git "a/kernel_redmi-5.15\\init\\main.c" "b/C:\\Users\\gipno\\AppData\\Local\\Temp\\spoof-patch-test\\main.c"
+index e345b6d..ca112d0 100644
+--- "a/kernel_redmi-5.15\\init\\main.c"
++++ "b/C:\\Users\\gipno\\AppData\\Local\\Temp\\spoof-patch-test\\main.c"
+@@ -644,6 +644,18 @@ static void __init setup_command_line(char *command_line)
  {
  	size_t len, xlen = 0, ilen = 0;
  
@@ -16,68 +18,6 @@
 +			memcpy(ks, "veritymode=enforcing", 20);
 +	}
 +
-+
  	if (extra_command_line)
  		xlen = strlen(extra_command_line);
  	if (extra_init_args)
---- a/fs/proc/cmdline.c
-+++ b/fs/proc/cmdline.c
-@@ -3,11 +3,30 @@
- #include <linux/init.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
-+#include <linux/slab.h>
- 
- static int cmdline_proc_show(struct seq_file *m, void *v)
- {
--	seq_puts(m, saved_command_line);
--	seq_putc(m, '\n');
-+	char *c = kstrdup(saved_command_line, GFP_KERNEL);
-+	if (c) {
-+		char *s;
-+		while ((s = strstr(c, "verifiedbootstate=orange")))
-+			memcpy(s, "verifiedbootstate=green ", 24);
-+		while ((s = strstr(c, "verifiedbootstate=red")))
-+			memcpy(s, "verifiedbootstate=green", 23);
-+		while ((s = strstr(c, "flash.locked=0")))
-+			memcpy(s, "flash.locked=1", 14);
-+		while ((s = strstr(c, "veritymode=logging")))
-+			memcpy(s, "veritymode=enforcing", 20);
-+		seq_printf(m, "%s\n", c);
-+		kfree(c);
-+	} else {
-+		seq_puts(m, saved_command_line);
-+		seq_putc(m, '\n');
-+	}
- 	return 0;
- }
- 
---- a/fs/proc/bootconfig.c
-+++ b/fs/proc/bootconfig.c
-@@ -14,7 +14,27 @@ static char *saved_boot_config;
- 
- static int boot_config_proc_show(struct seq_file *m, void *v)
- {
--	if (saved_boot_config)
--		seq_puts(m, saved_boot_config);
-+	if (saved_boot_config) {
-+		char *b = kmalloc(strlen(saved_boot_config) + 1, GFP_KERNEL);
-+		if (b) {
-+			char *s;
-+			strcpy(b, saved_boot_config);
-+			while ((s = strstr(b, "verifiedbootstate = \"orange\"")))
-+				memcpy(s, "verifiedbootstate  = \"green\"", 27);
-+			while ((s = strstr(b, "device_state = \"unlocked\"")))
-+				memcpy(s, "device_state   = \"locked\"", 25);
-+			while ((s = strstr(b, "flash.locked = \"0\"")))
-+				memcpy(s, "flash.locked = \"1\"", 18);
-+			while ((s = strstr(b, "veritymode = \"logging\"")))
-+				memcpy(s, "veritymode = \"enforcing\"", 24);
-+			seq_puts(m, b);
-+			kfree(b);
-+		} else {
-+			seq_puts(m, saved_boot_config);
-+		}
-+	}
- 	return 0;
- }
