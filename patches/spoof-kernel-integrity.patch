@@ -64,13 +64,7 @@ diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
 diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
 --- a/fs/proc/bootconfig.c
 +++ b/fs/proc/bootconfig.c
-@@ -3,9 +3,31 @@
- #include <linux/init.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
-+#include <linux/slab.h>
-+#include <linux/string.h>
- 
+@@ -7,2 +7,22 @@
  static int bootconfig_proc_show(struct seq_file *m, void *v)
  {
 +	char *b = kmalloc(bootconfig_data_size + 1, GFP_KERNEL);
@@ -93,6 +87,3 @@ diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
 +		return 0;
 +	}
 +
- 	if (bootconfig_data)
- 		seq_write(m, bootconfig_data, bootconfig_data_size);
- 	return 0;
