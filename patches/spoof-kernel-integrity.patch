@@ -64,44 +64,35 @@ diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
 diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
 --- a/fs/proc/bootconfig.c
 +++ b/fs/proc/bootconfig.c
-@@ -6,17 +6,38 @@
+@@ -3,9 +3,31 @@
+ #include <linux/init.h>
+ #include <linux/proc_fs.h>
  #include <linux/seq_file.h>
- #include <linux/bootconfig.h>
- #include <linux/bug.h>
 +#include <linux/slab.h>
 +#include <linux/string.h>
- #include <linux/kmemleak.h>
- #include "internal.h"
  
- static char *saved_boot_config;
- 
- static int boot_config_proc_show(struct seq_file *m, void *v)
+ static int bootconfig_proc_show(struct seq_file *m, void *v)
  {
--	if (saved_boot_config)
--		seq_puts(m, saved_boot_config);
-+	if (saved_boot_config) {
-+		char *b = kstrdup(saved_boot_config, GFP_KERNEL);
++	char *b = kmalloc(bootconfig_data_size + 1, GFP_KERNEL);
 +
-+		if (b) {
-+			char *s;
++	if (b) {
++		char *s;
 +
-+			while ((s = strstr(b, "verifiedbootstate = \"orange\"")))
-+				memcpy(s, "verifiedbootstate  = \"green\"", 27);
-+			while ((s = strstr(b, "device_state = \"unlocked\"")))
-+				memcpy(s, "device_state   = \"locked\"", 25);
-+			while ((s = strstr(b, "flash.locked = \"0\"")))
-+				memcpy(s, "flash.locked = \"1\"", 18);
-+			while ((s = strstr(b, "veritymode = \"logging\"")))
-+				memcpy(s, "veritymode = \"enforcing\"", 24);
-+			seq_puts(m, b);
-+			kfree(b);
-+		} else {
-+			seq_puts(m, saved_boot_config);
-+		}
++		memcpy(b, bootconfig_data, bootconfig_data_size);
++		b[bootconfig_data_size] = '\0';
++		while ((s = strstr(b, "verifiedbootstate = \"orange\"")))
++			memcpy(s, "verifiedbootstate  = \"green\"", 27);
++		while ((s = strstr(b, "device_state = \"unlocked\"")))
++			memcpy(s, "device_state   = \"locked\"", 25);
++		while ((s = strstr(b, "flash.locked = \"0\"")))
++			memcpy(s, "flash.locked = \"1\"", 18);
++		while ((s = strstr(b, "veritymode = \"logging\"")))
++			memcpy(s, "veritymode = \"enforcing\"", 24);
++		seq_write(m, b, bootconfig_data_size);
++		kfree(b);
++		return 0;
 +	}
 +
+ 	if (bootconfig_data)
+ 		seq_write(m, bootconfig_data, bootconfig_data_size);
  	return 0;
- }
- 
- static int __init copy_xbc_key_value_list(char *dst, size_t size)
- {
