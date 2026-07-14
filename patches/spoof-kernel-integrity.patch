@@ -10,7 +10,7 @@ index 2e244ad..d2540ec 100644
  
  static char *saved_boot_config;
  
-@@ -46,6 +47,15 @@ static int __init copy_xbc_key_value_list(char *dst, size_t size)
+@@ -46,7 +47,16 @@ static int __init copy_xbc_key_value_list(char *dst, size_t size)
  		vnode = xbc_node_get_child(leaf);
  		if (vnode) {
  			xbc_array_for_each_value(vnode, val) {
@@ -26,6 +26,7 @@ index 2e244ad..d2540ec 100644
  				if (strchr(val, '"'))
  					q = '\'';
  				else
+ 					q = '"';
 diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
 index fa762c5..f877bce 100644
 --- a/fs/proc/cmdline.c
@@ -75,7 +76,7 @@ diff --git a/init/main.c b/init/main.c
 index e345b6d..d47aeda 100644
 --- a/init/main.c
 +++ b/init/main.c
-@@ -640,10 +640,38 @@ static inline void smp_prepare_cpus(unsigned int maxcpus) { }
+@@ -640,11 +640,39 @@ static inline void smp_prepare_cpus(unsigned int maxcpus) { }
   * parsing is performed in place, and we should allow a component to
   * store reference of name/value for future reference.
   */
@@ -114,3 +115,4 @@ index e345b6d..d47aeda 100644
  	if (extra_command_line)
  		xlen = strlen(extra_command_line);
  	if (extra_init_args)
+ 		ilen = strlen(extra_init_args) + 4; /* for " -- " */
