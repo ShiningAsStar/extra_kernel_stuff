@@ -1,4 +1,5 @@
 ﻿diff --git a/init/main.c b/init/main.c
+index 1234567..abcdefg 100644
 --- a/init/main.c
 +++ b/init/main.c
 @@ -634,6 +634,19 @@ static void __init setup_command_line(char *command_line)
@@ -7,7 +8,6 @@
  
 +	{
 +		char *ks;
-+
 +		while ((ks = strstr(command_line, "verifiedbootstate=orange")))
 +			memcpy(ks, "verifiedbootstate=green ", 24);
 +		while ((ks = strstr(command_line, "verifiedbootstate=red")))
@@ -22,24 +22,24 @@
  		xlen = strlen(extra_command_line);
  	if (extra_init_args)
 diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
+index abcdef0..1234567 100644
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -3,14 +3,34 @@
+@@ -1,13 +1,40 @@
+ // SPDX-License-Identifier: GPL-2.0
  #include <linux/init.h>
  #include <linux/proc_fs.h>
  #include <linux/seq_file.h>
 +#include <linux/slab.h>
-+#include <linux/string.h>
  
  static int cmdline_proc_show(struct seq_file *m, void *v)
  {
 -	seq_puts(m, saved_command_line);
 -	seq_putc(m, '\n');
+-	return 0;
 +	char *c = kstrdup(saved_command_line, GFP_KERNEL);
-+
 +	if (c) {
 +		char *s;
-+
 +		while ((s = strstr(c, "verifiedbootstate=orange")))
 +			memcpy(s, "verifiedbootstate=green ", 24);
 +		while ((s = strstr(c, "verifiedbootstate=red")))
@@ -48,30 +48,35 @@ diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
 +			memcpy(s, "flash.locked=1", 14);
 +		while ((s = strstr(c, "veritymode=logging")))
 +			memcpy(s, "veritymode=enforcing", 20);
-+		seq_puts(m, c);
++		seq_printf(m, "%s\n", c);
 +		kfree(c);
-+	} else {
-+		seq_puts(m, saved_command_line);
++		return 0;
 +	}
-+
++	seq_puts(m, saved_command_line);
 +	seq_putc(m, '\n');
- 	return 0;
++	return 0;
  }
  
  static int __init proc_cmdline_init(void)
- {
- 	proc_create_single("cmdline", 0, NULL, cmdline_proc_show);
 diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
+index 1234567..abcdefg 100644
 --- a/fs/proc/bootconfig.c
 +++ b/fs/proc/bootconfig.c
-@@ -7,2 +7,22 @@
+@@ -1,11 +1,37 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/init.h>
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+ #include <linux/bootconfig.h>
++#include <linux/slab.h>
+ 
  static int bootconfig_proc_show(struct seq_file *m, void *v)
  {
+-	seq_write(m, bootconfig_data, bootconfig_data_size);
+-	return 0;
 +	char *b = kmalloc(bootconfig_data_size + 1, GFP_KERNEL);
-+
 +	if (b) {
 +		char *s;
-+
 +		memcpy(b, bootconfig_data, bootconfig_data_size);
 +		b[bootconfig_data_size] = '\0';
 +		while ((s = strstr(b, "verifiedbootstate = \"orange\"")))
@@ -86,4 +91,9 @@ diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
 +		kfree(b);
 +		return 0;
 +	}
-+
++	seq_write(m, bootconfig_data, bootconfig_data_size);
++	return 0;
+ }
+ 
+ static int __init proc_bootconfig_init(void)
+ 
