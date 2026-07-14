@@ -1,6 +1,8 @@
-﻿--- a/init/main.c
+﻿diff --git a/init/main.c b/init/main.c
+index 6e4c9e2a3d5f..c7b8a9d0e1f2 100644
+--- a/init/main.c
 +++ b/init/main.c
-@@ -633,6 +633,19 @@ static void __init setup_command_line(char *command_line)
+@@ -634,6 +634,19 @@ static void __init setup_command_line(char *command_line)
  {
  	size_t len, xlen = 0, ilen = 0;
  
@@ -15,9 +17,11 @@
  	if (extra_command_line)
  		xlen = strlen(extra_command_line);
  	if (extra_init_args)
+diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
+index 4f3a2b1c0d9e..e8f7a6b5c4d3 100644
 --- a/fs/proc/cmdline.c
 +++ b/fs/proc/cmdline.c
-@@ -1,12 +1,16 @@
+@@ -1,12 +1,31 @@
  // SPDX-License-Identifier: GPL-2.0
  #include <linux/fs.h>
  #include <linux/init.h>
@@ -44,9 +48,12 @@
  	seq_putc(m, '\n');
  	return 0;
  }
+diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
+index 1a2b3c4d5e6f..9f8e7d6c5b4a 100644
 --- a/fs/proc/bootconfig.c
 +++ b/fs/proc/bootconfig.c
-@@ -11,12 +11,32 @@
+@@ -9,9 +9,25 @@
+ #include <linux/seq_file.h>
  #include <linux/bootconfig.h>
  #include <linux/slab.h>
 +#include <linux/string.h>
