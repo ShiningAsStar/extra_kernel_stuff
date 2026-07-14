@@ -10,7 +10,7 @@ index 2e244ad..d2540ec 100644
  
  static char *saved_boot_config;
  
-@@ -46,5 +47,14 @@ static int __init copy_xbc_key_value_list(char *dst, size_t size)
+@@ -46,6 +47,15 @@ static int __init copy_xbc_key_value_list(char *dst, size_t size)
  		vnode = xbc_node_get_child(leaf);
  		if (vnode) {
  			xbc_array_for_each_value(vnode, val) {
@@ -25,6 +25,8 @@ index 2e244ad..d2540ec 100644
 +
  				if (strchr(val, '"'))
  					q = '\'';
+ 				else
+ 					q = '"';
 diff --git a/fs/proc/cmdline.c b/fs/proc/cmdline.c
 index fa762c5..f877bce 100644
 --- a/fs/proc/cmdline.c
@@ -74,7 +76,7 @@ diff --git a/init/main.c b/init/main.c
 index e345b6d..d47aeda 100644
 --- a/init/main.c
 +++ b/init/main.c
-@@ -643,5 +643,33 @@ static inline void smp_prepare_cpus(unsigned int maxcpus) { }
+@@ -643,6 +643,34 @@ static inline void smp_prepare_cpus(unsigned int maxcpus) { }
 +static void replace_str(char *str, const char *old_str, const char *new_str)
 +{
 +	char *pos;
@@ -109,5 +111,5 @@ index e345b6d..d47aeda 100644
 +
  	if (extra_command_line)
  		xlen = strlen(extra_command_line);
--- 
-2.34.1
+ 	if (extra_init_args)
+# End of patch
