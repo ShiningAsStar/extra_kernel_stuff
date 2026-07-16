@@ -10,7 +10,7 @@ index 2e244ad..d2540ec 100644
  
  static char *saved_boot_config;
  
-@@ -46,6 +47,15 @@ static int __init copy_xbc_key_value_list(char *dst, size_t size)
+@@ -46,7 +47,16 @@ static int __init copy_xbc_key_value_list(char *dst, size_t size)
  		vnode = xbc_node_get_child(leaf);
  		if (vnode) {
  			xbc_array_for_each_value(vnode, val) {
@@ -76,7 +76,7 @@ diff --git a/init/main.c b/init/main.c
 index e345b6d..d47aeda 100644
 --- a/init/main.c
 +++ b/init/main.c
-@@ -643,6 +643,34 @@ static inline void smp_prepare_cpus(unsigned int maxcpus) { }
+@@ -643,7 +643,35 @@ static inline void smp_prepare_cpus(unsigned int maxcpus) { }
 +static void replace_str(char *str, const char *old_str, const char *new_str)
 +{
 +	char *pos;
@@ -112,4 +112,4 @@ index e345b6d..d47aeda 100644
  	if (extra_command_line)
  		xlen = strlen(extra_command_line);
  	if (extra_init_args)
-# End of patch
+ 		ilen = strlen(extra_init_args) + 4; /* for " -- " */
